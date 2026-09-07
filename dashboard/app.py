@@ -1,4 +1,9 @@
 import os
+import sys
+
+# Ensure dashboard directory is in sys.path
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
 from flask import Flask, render_template, jsonify, request
 from flask_cors import CORS
 from sample_data import generate_spatial_data, generate_timeseries_data, generate_model_results, generate_alerts

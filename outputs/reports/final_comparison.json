@@ -1,0 +1,47 @@
+{
+  "comparison": [
+    {
+      "model": "Rule Baseline",
+      "F1": 0.25,
+      "Accuracy": 1.0,
+      "Train_Time_s": 0.0,
+      "Lead10": 0.25,
+      "Lead20": 0.23,
+      "Lead30": 0.2125
+    },
+    {
+      "model": "Random Forest",
+      "F1": 0.25,
+      "Accuracy": 1.0,
+      "Train_Time_s": 23.55,
+      "Lead10": 0.25,
+      "Lead20": 0.25,
+      "Lead30": 0.25
+    },
+    {
+      "model": "XGBoost",
+      "F1": 0.25,
+      "Accuracy": 1.0,
+      "Train_Time_s": 21.15,
+      "Lead10": 0.25,
+      "Lead20": 0.25,
+      "Lead30": 0.25
+    },
+    {
+      "model": "LSTM Sequence",
+      "F1": 0.25,
+      "Accuracy": 1.0,
+      "Train_Time_s": 10.34,
+      "Lead10": 0.25,
+      "Lead20": 0.23,
+      "Lead30": 0.2125
+    }
+  ],
+  "study_area": "Oromia Region (Arsi-Bale Pilot)",
+  "lead_horizons_days": [
+    10,
+    20,
+    30
+  ],
+  "timestamp": "2026-09-07 00:46:27"
+}

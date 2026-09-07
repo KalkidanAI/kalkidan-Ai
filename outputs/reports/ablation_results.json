@@ -1,0 +1,6 @@
+{
+  "Vegetation Only (NDVI, EVI, NDMI, VCI)": 0.25,
+  "Precipitation Only (CHIRPS)": 0.25,
+  "Soil Moisture Only (SMAP)": 0.25,
+  "Full Multimodal Fusion (All)": 0.25
+}

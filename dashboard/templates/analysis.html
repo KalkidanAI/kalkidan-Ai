@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="dashboard-header glass-card">
+        <h2>Time-Series Analysis</h2>
+        <div class="controls">
+            <label for="zone-select">Select Zone: </label>
+            <select id="zone-select" class="form-control" style="width: 250px; display: inline-block;">
+                <option value="Borena">Borena</option>
+                <option value="East Hararghe">East Hararghe</option>
+                <option value="West Hararghe">West Hararghe</option>
+                <option value="Guji">Guji</option>
+                <option value="Bale">Bale</option>
+                <option value="Arsi">Arsi</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="charts-grid mt-4">
+        <div class="chart-card glass-card">
+            <h3>Vegetation Indices (NDVI & VCI)</h3>
+            <div id="chart-veg" class="plot-container"></div>
+        </div>
+        
+        <div class="chart-card glass-card">
+            <h3>Rainfall (mm/month)</h3>
+            <div id="chart-rain" class="plot-container"></div>
+        </div>
+        
+        <div class="chart-card glass-card">
+            <h3>Soil Moisture</h3>
+            <div id="chart-sm" class="plot-container"></div>
+        </div>
+        
+        <div class="chart-card glass-card">
+            <h3>Drought Risk Prediction Score</h3>
+            <div id="chart-risk" class="plot-container"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        loadTimeseriesData('Borena');
+        
+        document.getElementById('zone-select').addEventListener('change', (e) => {
+            loadTimeseriesData(e.target.value);
+        });
+    });
+</script>
+{% endblock %}

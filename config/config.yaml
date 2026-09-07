@@ -1,0 +1,85 @@
+project:
+  name: "From Space to Action"
+  description: "AI + Satellite Data for Agricultural Drought Early Warning in Ethiopia"
+  author: "Kalkidan Wondimagegnehu Alemneh"
+  institution: "EGATE (School of Gifted and Talented)"
+
+study_area:
+  name: "Oromia Region, Ethiopia"
+  bbox: [34.0, 3.5, 43.0, 10.5]   # [west, south, east, north] — full Oromia
+  pilot_bbox: [38.5, 7.5, 40.5, 9.5]  # Arsi-Bale pilot zone (manageable size)
+  crs: "EPSG:4326"
+  resolution_deg: 0.01  # ~1km grid cells
+  admin_level: "zone"
+
+dates:
+  start: "2018-01-01"
+  end: "2025-12-31"
+  climatology_start: "2000-01-01"
+  composite_period: "dekadal"  # 10-day composites
+
+data_sources:
+  sentinel2: "COPERNICUS/S2_SR_HARMONIZED"
+  landsat8: "LANDSAT/LC08/C02/T1_L2"
+  landsat9: "LANDSAT/LC09/C02/T1_L2"
+  chirps: "UCSB-CHG/CHIRPS/DAILY"
+  era5: "ECMWF/ERA5_LAND/MONTHLY_AGGR"
+  smap: "NASA_USDA/HSL/SMAP10KM_soil_moisture"
+  dem: "USGS/SRTMGL1_003"
+  landcover: "ESA/WorldCover/v200"
+  admin: "FAO/GAUL/2015/level2"
+
+cloud_masking:
+  max_cloud_pct: 30
+  use_qa60: true
+  use_scl: true  # Scene Classification Layer for S2
+
+compositing:
+  method: "median"
+  min_observations: 2
+
+splits:
+  train_end: "2022-01-01"
+  val_end: "2023-07-01"
+  # test: 2023-07-01 to 2025-12-31 (HELD OUT)
+
+drought_classes:
+  normal: { vci_min: 40, label: 0, color: "#2ecc71", name: "Normal" }
+  watch:  { vci_min: 35, vci_max: 40, label: 1, color: "#f1c40f", name: "Watch" }
+  warning: { vci_min: 20, vci_max: 35, label: 2, color: "#e67e22", name: "Warning" }
+  severe: { vci_max: 20, label: 3, color: "#e74c3c", name: "Severe" }
+
+models:
+  random_forest:
+    n_estimators: 300
+    max_depth: 15
+    min_samples_leaf: 20
+    class_weight: "balanced"
+    n_jobs: -1
+    random_state: 42
+  xgboost:
+    n_estimators: 500
+    learning_rate: 0.05
+    max_depth: 6
+    subsample: 0.8
+    colsample_bytree: 0.8
+    eval_metric: "mlogloss"
+    early_stopping_rounds: 30
+    tree_method: "hist"  # CPU-friendly; use gpu_hist if GPU available
+    random_state: 42
+  lstm:
+    seq_len: 8          # 8 dekads = ~80 days lookback (reduced for free Colab)
+    hidden_dim: 64      # Reduced for free Colab
+    num_layers: 1        # Single layer for efficiency
+    dropout: 0.3
+    learning_rate: 0.001
+    batch_size: 256
+    epochs: 30          # Reduced for free Colab
+    patience: 7
+
+lead_times_dekads: [1, 2, 3]  # 10, 20, 30 days ahead
+
+mvp:
+  use_sample_data: true
+  sample_grid_cells: 5000  # Subset for quick training
+  dashboard_mode: "flask"

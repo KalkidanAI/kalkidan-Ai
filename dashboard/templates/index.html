@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="hero-section">
+    <div class="hero-content">
+        <h1 class="hero-title">FROM SPACE TO ACTION</h1>
+        <h2 class="hero-subtitle">Using AI and Satellite Data for Agricultural Drought Early Warning in Ethiopia</h2>
+        <p class="hero-text">An advanced machine learning prototype processing multi-source earth observation data to predict agricultural drought up to 30 days in advance in the Oromia region.</p>
+        <div class="hero-buttons">
+            <a href="/map" class="btn btn-primary">Explore Interactive Map <i class="fa-solid fa-arrow-right"></i></a>
+            <a href="/about" class="btn btn-secondary">Read Methodology</a>
+        </div>
+    </div>
+</div>
+
+<div class="container stats-section">
+    <div class="stat-card glass-card">
+        <div class="stat-icon"><i class="fa-solid fa-satellite"></i></div>
+        <div class="stat-value">5</div>
+        <div class="stat-label">Data Sources</div>
+    </div>
+    <div class="stat-card glass-card">
+        <div class="stat-icon"><i class="fa-solid fa-brain"></i></div>
+        <div class="stat-value">4</div>
+        <div class="stat-label">AI Models</div>
+    </div>
+    <div class="stat-card glass-card">
+        <div class="stat-icon"><i class="fa-solid fa-calendar-days"></i></div>
+        <div class="stat-value">7+</div>
+        <div class="stat-label">Years of Data</div>
+    </div>
+    <div class="stat-card glass-card">
+        <div class="stat-icon"><i class="fa-solid fa-map"></i></div>
+        <div class="stat-value">Oromia</div>
+        <div class="stat-label">Target Region</div>
+    </div>
+</div>
+
+<div class="container methodology-section">
+    <h3 class="section-title">System Pipeline</h3>
+    <div class="pipeline-diagram glass-card">
+        <div class="pipeline-step">
+            <div class="step-icon"><i class="fa-solid fa-satellite"></i></div>
+            <h4>Data Collection</h4>
+            <p>Sentinel-2, Landsat, CHIRPS, ERA5-Land via GEE</p>
+        </div>
+        <div class="pipeline-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+        <div class="pipeline-step">
+            <div class="step-icon"><i class="fa-solid fa-microchip"></i></div>
+            <h4>Feature Eng.</h4>
+            <p>NDVI, VCI, EVI, Rainfall Anomalies</p>
+        </div>
+        <div class="pipeline-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+        <div class="pipeline-step">
+            <div class="step-icon"><i class="fa-solid fa-network-wired"></i></div>
+            <h4>AI Modeling</h4>
+            <p>Random Forest, XGBoost, LSTM</p>
+        </div>
+        <div class="pipeline-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+        <div class="pipeline-step">
+            <div class="step-icon"><i class="fa-solid fa-bell"></i></div>
+            <h4>Early Action</h4>
+            <p>Risk mapping & targeted alerts</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

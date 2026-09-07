@@ -1,0 +1,33 @@
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Virtual environments
+venv/
+env/
+.venv/
+
+# Environment variables
+.env
+.env.local
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Large raw combined feature dump (>50MB) - train/val/test CSVs are tracked in data/targets/
+data/features/*.csv
+data/raw/
+data/processed/
+
+# Temporary export archives
+export_bundle/
+*.zip
+*.tar.gz
+
+# IDE config
+.vscode/
+.idea/

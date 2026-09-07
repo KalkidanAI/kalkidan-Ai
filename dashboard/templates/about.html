@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="glass-card p-4">
+        <h2 class="mb-4">About the Project</h2>
+        
+        <div class="about-grid">
+            <div class="about-content">
+                <h3>From Space to Action</h3>
+                <p>This dashboard is a Minimum Viable Product (MVP) demonstrating an AI-powered Agricultural Drought Early Warning System for the Oromia region of Ethiopia.</p>
+                
+                <h4>Developer Information</h4>
+                <ul>
+                    <li><strong>Student:</strong> Kalkidan Wondimagegnehu Alemneh</li>
+                    <li><strong>Institution:</strong> EGATE (School of Gifted and Talented)</li>
+                    <li><strong>Discipline:</strong> Astronomy and Space Technology — Earth Observation</li>
+                </ul>
+                
+                <h4 class="mt-4">Methodology</h4>
+                <p>The system utilizes multi-source Earth Observation data processed through Google Earth Engine (GEE). Key features including NDVI, VCI, and Rainfall anomalies are extracted and fed into advanced machine learning models (XGBoost, Random Forest, LSTM) to predict drought severity classes up to 30 days in advance.</p>
+                
+                <div class="alert-box alert-warning mt-4">
+                    <strong><i class="fa-solid fa-triangle-exclamation"></i> Disclaimer:</strong>
+                    This is a research prototype built for educational and demonstration purposes. The data shown in this MVP mode is synthetically generated for demonstration. Do not use for official agricultural or disaster response planning.
+                </div>
+            </div>
+            
+            <div class="about-tech">
+                <div class="glass-card p-4">
+                    <h4>Technology Stack</h4>
+                    <ul class="tech-list">
+                        <li><i class="fa-brands fa-python"></i> Python</li>
+                        <li><i class="fa-solid fa-database"></i> Google Earth Engine API</li>
+                        <li><i class="fa-solid fa-brain"></i> Scikit-Learn & XGBoost</li>
+                        <li><i class="fa-solid fa-server"></i> Flask Web Framework</li>
+                        <li><i class="fa-solid fa-map"></i> Leaflet.js</li>
+                        <li><i class="fa-solid fa-chart-pie"></i> Plotly.js</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

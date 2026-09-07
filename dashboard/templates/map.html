@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="map-layout">
+    <div class="map-sidebar glass-card">
+        <h3>Drought Risk Monitor</h3>
+        <p class="text-sm mb-4">Oromia Region, Ethiopia</p>
+        
+        <div class="stats-panel mb-4">
+            <div class="stat-row">
+                <span>Total Locations Monitored:</span>
+                <strong id="total-cells">--</strong>
+            </div>
+            <div class="stat-row">
+                <span>Locations at Risk (Warning+):</span>
+                <strong id="risk-cells" class="text-warning">--</strong>
+            </div>
+        </div>
+
+        <h4>Risk Legend (VCI)</h4>
+        <div class="legend">
+            <div class="legend-item">
+                <span class="color-box" style="background: #2ecc71;"></span>
+                <span>Normal (>50)</span>
+            </div>
+            <div class="legend-item">
+                <span class="color-box" style="background: #f1c40f;"></span>
+                <span>Watch (35-50)</span>
+            </div>
+            <div class="legend-item">
+                <span class="color-box" style="background: #e67e22;"></span>
+                <span>Warning (20-35)</span>
+            </div>
+            <div class="legend-item">
+                <span class="color-box" style="background: #e74c3c;"></span>
+                <span>Severe (<20)</span>
+            </div>
+        </div>
+        
+        <div class="mt-4">
+            <h4>Filters</h4>
+            <select id="zone-filter" class="form-control">
+                <option value="all">All Zones</option>
+                <!-- Filled via JS -->
+            </select>
+        </div>
+    </div>
+    
+    <div class="map-container">
+        <div id="drought-map"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        initMap();
+    });
+</script>
+{% endblock %}

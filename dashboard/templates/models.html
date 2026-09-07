@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Model Performance Comparison</h2>
+    
+    <div class="models-summary mt-4" id="models-summary-cards">
+        <!-- Filled by JS -->
+    </div>
+    
+    <div class="glass-card mt-4 p-4">
+        <h3>Metrics Overview</h3>
+        <div class="table-responsive">
+            <table class="data-table" id="models-table">
+                <thead>
+                    <tr>
+                        <th>Model</th>
+                        <th>F1 Score</th>
+                        <th>FAR (False Alarm)</th>
+                        <th>POD (Detection)</th>
+                        <th>RMSE</th>
+                        <th>Lead 10-day</th>
+                        <th>Lead 30-day</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Filled by JS -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="charts-grid mt-4">
+        <div class="chart-card glass-card">
+            <h3>Skill Degradation vs Lead Time</h3>
+            <div id="chart-lead-time" class="plot-container"></div>
+        </div>
+        
+        <div class="chart-card glass-card">
+            <h3>Feature Importance (XGBoost)</h3>
+            <div id="chart-importance" class="plot-container"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        loadModelResults();
+    });
+</script>
+{% endblock %}

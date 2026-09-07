@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="flex-between mb-4">
+        <h2>Early Warning Alerts</h2>
+        <button class="btn btn-primary" onclick="alert('CSV Export generated (Demo)')"><i class="fa-solid fa-download"></i> Export Report</button>
+    </div>
+
+    <div class="alert-stats stats-section mb-4">
+        <div class="stat-card glass-card alert-stat-severe">
+            <div class="stat-value" id="count-severe">0</div>
+            <div class="stat-label">Severe</div>
+        </div>
+        <div class="stat-card glass-card alert-stat-warning">
+            <div class="stat-value" id="count-warning">0</div>
+            <div class="stat-label">Warning</div>
+        </div>
+        <div class="stat-card glass-card alert-stat-watch">
+            <div class="stat-value" id="count-watch">0</div>
+            <div class="stat-label">Watch</div>
+        </div>
+    </div>
+
+    <div class="alerts-list" id="alerts-container">
+        <div class="loading-spinner"><i class="fa-solid fa-circle-notch fa-spin"></i> Loading alerts...</div>
+        <!-- Filled by JS -->
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        loadAlerts();
+    });
+</script>
+{% endblock %}

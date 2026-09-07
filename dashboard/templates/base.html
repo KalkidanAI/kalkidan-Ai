@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>From Space to Action - Drought Early Warning</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="logo">
+                <i class="fa-solid fa-satellite"></i>
+                <span class="logo-text">SPACE TO ACTION</span>
+            </a>
+            <div class="nav-links">
+                <a href="/" class="{{ 'active' if request.path == '/' else '' }}"><i class="fa-solid fa-home"></i> Home</a>
+                <a href="/map" class="{{ 'active' if request.path == '/map' else '' }}"><i class="fa-solid fa-map-location-dot"></i> Map</a>
+                <a href="/analysis" class="{{ 'active' if request.path == '/analysis' else '' }}"><i class="fa-solid fa-chart-line"></i> Analysis</a>
+                <a href="/models" class="{{ 'active' if request.path == '/models' else '' }}"><i class="fa-solid fa-brain"></i> Models</a>
+                <a href="/alerts" class="{{ 'active' if request.path == '/alerts' else '' }}"><i class="fa-solid fa-bell"></i> Alerts</a>
+                <a href="/about" class="{{ 'active' if request.path == '/about' else '' }}"><i class="fa-solid fa-circle-info"></i> About</a>
+            </div>
+            <div class="mobile-menu-btn">
+                <i class="fa-solid fa-bars"></i>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Demo Banner -->
+    <div class="demo-banner">
+        <i class="fa-solid fa-flask"></i> MVP DEMONSTRATION MODE - USING SYNTHETIC SAMPLE DATA
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <span class="egate">EGATE</span> Earth Observation Research
+            </div>
+            <div class="footer-text">
+                Kalkidan Wondimagegnehu Alemneh | Oromia Region Agricultural Drought Early Warning System MVP
+            </div>
+        </div>
+    </footer>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Plotly JS -->
+    <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

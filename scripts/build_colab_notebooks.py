@@ -8,18 +8,11 @@ Generates production-grade, Google Colab-ready Jupyter notebooks for:
 4. 08_xgboost.ipynb (XGBoost + feature ablation + SHAP explainability)
 5. 09_lstm_forecasting.ipynb (PyTorch LSTM temporal sequence forecasting on GPU)
 6. 10_model_comparison.ipynb (Held-out benchmark comparison & leakage audit)
-
-All notebooks feature:
-- Dynamic Colab / Google Drive / local environment detection
-- Automatic data generation fallback if data/ is not yet present
-- Proper model checkpoint saving to models/
-- Metrics reporting and outputs/ export
 """
 
 import os
 import sys
 
-# Ensure scripts/ is in sys.path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from nb_builder import NotebookBuilder
 
@@ -27,20 +20,17 @@ ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__
 NOTEBOOKS_DIR = os.path.join(ROOT_DIR, "notebooks")
 os.makedirs(NOTEBOOKS_DIR, exist_ok=True)
 
-# Standard Colab environment initialization block
 COLAB_INIT_CODE = """# === Google Colab Setup & Environment Detection ===
 import os, sys, json, time, warnings
 warnings.filterwarnings('ignore')
 
-# Detect environment (Google Colab vs Local)
 IN_COLAB = 'google.colab' in sys.modules
 
 if IN_COLAB:
-    print(" Running in Google Colab environment")
+    print("🚀 Running in Google Colab environment")
     from google.colab import drive
     try:
         drive.mount('/content/drive')
-        # Check if project folder exists in Drive
         candidates = [
             '/content/drive/MyDrive/venus',
             '/content/drive/MyDrive/FromSpaceToAction',
@@ -54,7 +44,7 @@ if IN_COLAB:
                 PROJECT_DIR = c
                 break
         print(f"📁 Project root set to: {PROJECT_DIR}")
-    except Exception as e:
+    except Exception:
         print("Note: Drive mount skipped or failed, using local Colab directory.")
         PROJECT_DIR = '.'
 else:
@@ -76,79 +66,131 @@ if SRC_DIR not in sys.path:
 if PROJECT_DIR not in sys.path:
     sys.path.insert(0, PROJECT_DIR)
 
-print(" Setup verified.")"""
+print("✅ Setup verified.")"""
 
-# Package install cell
 COLAB_INSTALL_CODE = """# Install required dependencies
 !pip install -q xgboost shap pyyaml scikit-learn matplotlib seaborn plotly folium"""
 
-# Data loading with auto-fallback
 DATA_LOAD_CODE = """# === Load Dataset & Automatic Fallback ===
+import os, math, random
 import pandas as pd
 import numpy as np
+from datetime import datetime, timedelta
 
-train_path = os.path.join(DATA_DIR, 'targets', 'train.csv')
-val_path = os.path.join(DATA_DIR, 'targets', 'val.csv')
-test_path = os.path.join(DATA_DIR, 'targets', 'test.csv')
+def find_file(fname):
+    candidates = [
+        os.path.join(DATA_DIR, 'targets', fname),
+        os.path.join(DATA_DIR, fname),
+        os.path.join('/content', fname),
+        os.path.join('/content', 'data', 'targets', fname),
+        os.path.join('/content', 'data', fname),
+        os.path.join('/content', 'targets', fname),
+        os.path.join(PROJECT_DIR, fname),
+        fname
+    ]
+    for c in candidates:
+        if os.path.exists(c) and os.path.getsize(c) > 50:
+            return c
+    return None
 
-if not os.path.exists(train_path):
-    print("⚠️ Precomputed dataset not found. Generating pilot dataset for Oromia...")
-    prep_script = os.path.join(PROJECT_DIR, 'scripts', 'prepare_dataset.py')
-    if os.path.exists(prep_script):
-        !python {prep_script}
-    else:
-        # Inline fallback dataset generation
-        print("Running inline data generator...")
-        import math, random
-        from datetime import datetime, timedelta
-        
-        # Inline generation of 500 cells x 72 timesteps for immediate execution
+train_file = find_file('train.csv')
+val_file = find_file('val.csv')
+test_file = find_file('test.csv')
+
+train_df = pd.read_csv(train_file) if train_file else pd.DataFrame()
+val_df = pd.read_csv(val_file) if val_file else pd.DataFrame()
+test_df = pd.read_csv(test_file) if test_file else pd.DataFrame()
+
+# If precomputed splits not fully loaded, check full dataset or generate
+if len(train_df) == 0 or len(test_df) == 0:
+    full_file = find_file('features_v1.csv') or find_file('dataset_v1.csv')
+    if full_file:
+        print(f"📊 Splitting from full dataset: {full_file}")
+        full_df = pd.read_csv(full_file)
+        if 'split' in full_df.columns:
+            train_df = full_df[full_df['split'] == 'Train'].copy()
+            val_df = full_df[full_df['split'] == 'Val'].copy()
+            test_df = full_df[full_df['split'] == 'Test'].copy()
+
+    # Generate multi-year pilot dataset (2018-2025: 292 dekads) if still missing
+    if len(train_df) == 0 or len(test_df) == 0:
+        print("⚙️ Generating complete multi-temporal dataset for Oromia pilot (2018–2025)...")
         random.seed(42)
         records = []
-        dates = [datetime(2018, 1, 1) + timedelta(days=10*i) for i in range(72)]
-        for cid in range(500):
-            lat, lon = 7.5 + random.random()*2.0, 38.5 + random.random()*2.0
-            elev = 1500.0 + random.random()*1000.0
+        dates = [datetime(2018, 1, 5) + timedelta(days=10*i) for i in range(292)]
+        for cid in range(300):
+            lat = 7.5 + random.random() * 2.0
+            lon = 38.5 + random.random() * 2.0
+            elev = 1500.0 + random.random() * 1000.0
+            aridity = ((9.5 - lat) / 2.0) * 0.6 + ((lon - 38.5) / 2.0) * 0.4
+            
             for i, d in enumerate(dates):
-                m = d.month
-                season = math.sin(2.0 * math.pi * m / 12.0)
-                ndvi = max(0.1, min(0.9, 0.4 + 0.2*season + (random.random()-0.5)*0.1))
-                vci = max(5.0, min(95.0, 55.0 + 25.0*season + (random.random()-0.5)*15.0))
-                rain = max(0.0, 50.0 + 40.0*season + (random.random()-0.5)*20.0)
-                sm = max(0.05, min(0.45, 0.25 + 0.1*season + (random.random()-0.5)*0.05))
-                c_class = 3 if vci <= 20 else (2 if vci <= 35 else (1 if vci <= 40 else 0))
+                m, y = d.month, d.year
+                d_str = d.strftime('%Y-%m-%d')
+                
+                kiremt = math.exp(-((m - 7.8) ** 2) / 2.5)
+                belg = 0.45 * math.exp(-((m - 4.2) ** 2) / 1.5)
+                season = kiremt + belg
+                
+                drought = 0.45 if y in [2021, 2022] else (0.2 if (y == 2020 and m >= 9) else 0.0)
+                noise = (random.random() - 0.5) * 0.1
+                
+                ndvi = max(0.08, min(0.92, 0.35 + 0.4*season - drought*0.35 - aridity*0.1 + noise))
+                vci = max(2.0, min(98.0, 60.0 + 25*season - drought*55 - aridity*15 + (random.random()-0.5)*10))
+                rain = max(0.0, (20.0 + season*120.0)*(1.0 - drought) + (random.random()-0.5)*15)
+                sm = max(0.03, min(0.48, (0.15 + season*0.2)*(1.0 - drought) + (random.random()-0.5)*0.03))
+                
+                c_class = 3 if vci <= 20.0 else (2 if vci <= 35.0 else (1 if vci <= 40.0 else 0))
+                
+                if d_str <= '2022-01-01':
+                    split_label = 'Train'
+                elif d_str <= '2023-07-01':
+                    split_label = 'Val'
+                else:
+                    split_label = 'Test'
+                    
                 records.append({
-                    'cell_id': cid, 'date': d.strftime('%Y-%m-%d'), 'lat': lat, 'lon': lon, 'elevation': elev,
-                    'month_sin': math.sin(2*math.pi*m/12), 'month_cos': math.cos(2*math.pi*m/12),
-                    'ndvi': ndvi, 'evi': ndvi*0.8, 'ndmi': ndvi*0.7, 'vci': vci,
-                    'rain_30d': rain, 'rain_60d': rain*1.8, 'rain_anomaly': (rain-50)/25,
-                    'smap_sm': sm, 'smap_anomaly': (sm-0.25)/0.1, 'temp_anomaly': 0.0, 'lst': 298.0,
-                    'ndvi_lag_1': ndvi, 'ndvi_lag_2': ndvi, 'ndvi_rollmean_3': ndvi,
-                    'vci_lag_1': vci, 'vci_lag_2': vci, 'vci_rollmean_3': vci, 'vci_trend_4': 0.0,
-                    'target': c_class, 'split': 'Train' if d.strftime('%Y-%m-%d') <= '2022-01-01' else ('Val' if d.strftime('%Y-%m-%d') <= '2023-07-01' else 'Test')
+                    'cell_id': cid, 'date': d_str, 'lat': round(lat, 4), 'lon': round(lon, 4), 'elevation': round(elev, 1),
+                    'month_sin': round(math.sin(2*math.pi*m/12), 4), 'month_cos': round(math.cos(2*math.pi*m/12), 4),
+                    'ndvi': round(ndvi, 4), 'evi': round(ndvi*0.82, 4), 'ndmi': round(ndvi*0.7 - 0.1, 4), 'vci': round(vci, 2),
+                    'rain_30d': round(rain, 2), 'rain_60d': round(rain*1.85, 2), 'rain_anomaly': round((rain - 65)/35, 4),
+                    'smap_sm': round(sm, 4), 'smap_anomaly': round((sm - 0.22)/0.08, 4), 'temp_anomaly': round(drought*1.5, 4), 'lst': round(296.0 + drought*4.0, 2),
+                    'ndvi_lag_1': round(ndvi, 4), 'ndvi_lag_2': round(ndvi, 4), 'ndvi_rollmean_3': round(ndvi, 4),
+                    'vci_lag_1': round(vci, 2), 'vci_lag_2': round(vci, 2), 'vci_rollmean_3': round(vci, 2), 'vci_trend_4': 0.0,
+                    'target_lead_1': c_class, 'target_lead_2': c_class, 'target_lead_3': c_class,
+                    'target': c_class, 'split': split_label
                 })
-        df_all = pd.DataFrame(records)
-        df_all[df_all['split'] == 'Train'].to_csv(train_path, index=False)
-        df_all[df_all['split'] == 'Val'].to_csv(val_path, index=False)
-        df_all[df_all['split'] == 'Test'].to_csv(test_path, index=False)
-        print("✅ Fallback dataset generated.")
+        df_gen = pd.DataFrame(records)
+        train_df = df_gen[df_gen['split'] == 'Train'].copy()
+        val_df = df_gen[df_gen['split'] == 'Val'].copy()
+        test_df = df_gen[df_gen['split'] == 'Test'].copy()
+        
+        target_dir = os.path.join(DATA_DIR, 'targets')
+        os.makedirs(target_dir, exist_ok=True)
+        train_df.to_csv(os.path.join(target_dir, 'train.csv'), index=False)
+        val_df.to_csv(os.path.join(target_dir, 'val.csv'), index=False)
+        test_df.to_csv(os.path.join(target_dir, 'test.csv'), index=False)
+        print("✅ Multi-year pilot dataset generated and saved.")
 
-train_df = pd.read_csv(train_path)
-val_df = pd.read_csv(val_path)
-test_df = pd.read_csv(test_path)
+# Ensure test_df and val_df are never empty
+if len(test_df) == 0:
+    print("⚠️ Partitioning validation set to populate held-out test split...")
+    from sklearn.model_selection import train_test_split
+    val_df, test_df = train_test_split(val_df, test_size=0.5, random_state=42)
 
-print(f"📊 Dataset Loaded Successfully:")
-print(f"  - Train observations: {len(train_df):,}")
-print(f"  - Validation observations: {len(val_df):,}")
-print(f"  - Held-out Test observations: {len(test_df):,}")
+print(f"\\n📊 Dataset Ready for Training:")
+print(f"  - Train observations (<= 2022-01-01): {len(train_df):,}")
+print(f"  - Validation observations (2022-01-01 to 2023-07-01): {len(val_df):,}")
+print(f"  - Held-out Test observations (> 2023-07-01): {len(test_df):,}")
 
-# Feature columns
 FEATURE_COLS = [c for c in train_df.columns if c not in ['cell_id', 'date', 'current_class', 'target_lead_1', 'target_lead_2', 'target_lead_3', 'target', 'split']]
 TARGET_COL = 'target'
+CLASS_NAMES = ['Normal', 'Watch', 'Warning', 'Severe']
+CLASS_LABELS = [0, 1, 2, 3]
 
 print(f"\\n🎯 Features ({len(FEATURE_COLS)}):", FEATURE_COLS)
 print("📈 Class distribution in training set:")
-print(train_df[TARGET_COL].value_counts(normalize=True).rename({0: 'Normal', 1: 'Watch', 2: 'Warning', 3: 'Severe'}))"""
+print(train_df[TARGET_COL].value_counts().rename({0: 'Normal', 1: 'Watch', 2: 'Warning', 3: 'Severe'}))"""
 
 
 def build_master_colab_notebook():
@@ -189,16 +231,16 @@ def rule_predict(vci_values):
 baseline_val_preds = rule_predict(val_df['vci'].values)
 baseline_test_preds = rule_predict(test_df['vci'].values)
 
-baseline_f1 = f1_score(test_df[TARGET_COL], baseline_test_preds, average='macro')
-print(f"📊 Baseline Test Macro F1: {baseline_f1:.4f}")
+baseline_f1 = f1_score(test_df[TARGET_COL], baseline_test_preds, labels=CLASS_LABELS, average='macro', zero_division=0)
+baseline_acc = float(np.mean(test_df[TARGET_COL] == baseline_test_preds))
+print(f"📊 Baseline Test Macro F1: {baseline_f1:.4f} | Accuracy: {baseline_acc:.4f}")
 print("\\nBaseline Test Classification Report:")
-print(classification_report(test_df[TARGET_COL], baseline_test_preds, target_names=['Normal', 'Watch', 'Warning', 'Severe']))
+print(classification_report(test_df[TARGET_COL], baseline_test_preds, labels=CLASS_LABELS, target_names=CLASS_NAMES, zero_division=0))
 
-# Metrics container
 all_results = {}
 all_results['Rule Baseline'] = {
     'Macro_F1': round(baseline_f1, 4),
-    'Accuracy': round(float(np.mean(test_df[TARGET_COL] == baseline_test_preds)), 4),
+    'Accuracy': round(baseline_acc, 4),
     'Description': 'Agronomic VCI Thresholding'
 }""")
 
@@ -206,6 +248,7 @@ all_results['Rule Baseline'] = {
     nb.code("""# === Train Random Forest Classifier ===
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import classification_report, f1_score
 import joblib, matplotlib.pyplot as plt
 
 scaler = StandardScaler()
@@ -226,22 +269,21 @@ rf.fit(X_train, y_train)
 train_time = time.time() - t0
 print(f"✅ Random Forest trained in {train_time:.2f}s")
 
-# Evaluate
 rf_val_preds = rf.predict(X_val)
 rf_test_preds = rf.predict(X_test)
 
-rf_f1 = f1_score(y_test, rf_test_preds, average='macro')
+rf_f1 = f1_score(y_test, rf_test_preds, labels=CLASS_LABELS, average='macro', zero_division=0)
 rf_acc = float(np.mean(y_test == rf_test_preds))
 print(f"📊 Random Forest Test Macro F1: {rf_f1:.4f} | Accuracy: {rf_acc:.4f}")
+print("\\nRandom Forest Classification Report:")
+print(classification_report(y_test, rf_test_preds, labels=CLASS_LABELS, target_names=CLASS_NAMES, zero_division=0))
 
-# Save artifacts
 joblib.dump(rf, os.path.join(MODELS_DIR, 'rf_model.pkl'))
 joblib.dump(scaler, os.path.join(MODELS_DIR, 'scaler.pkl'))
 print(f"💾 Model saved to: {MODELS_DIR}/rf_model.pkl")
 
 all_results['Random Forest'] = {'Macro_F1': round(rf_f1, 4), 'Accuracy': round(rf_acc, 4), 'Train_Time_s': round(train_time, 2)}
 
-# Plot Feature Importance
 importances = rf.feature_importances_
 idx = np.argsort(importances)[::-1][:15]
 
@@ -256,6 +298,7 @@ plt.show()""")
     nb.md("## 4. Model 2: XGBoost Classifier + Modality Ablation Study + SHAP\nGradient-boosted decision trees with modality contribution testing.")
     nb.code("""# === Train XGBoost Classifier ===
 import xgboost as xgb
+from sklearn.metrics import classification_report, f1_score
 
 print("Training XGBoost Classifier...")
 t0 = time.time()
@@ -279,11 +322,12 @@ xgb_time = time.time() - t0
 print(f"✅ XGBoost trained in {xgb_time:.2f}s")
 
 xgb_test_preds = xgb_model.predict(X_test)
-xgb_f1 = f1_score(y_test, xgb_test_preds, average='macro')
+xgb_f1 = f1_score(y_test, xgb_test_preds, labels=CLASS_LABELS, average='macro', zero_division=0)
 xgb_acc = float(np.mean(y_test == xgb_test_preds))
 print(f"📊 XGBoost Test Macro F1: {xgb_f1:.4f} | Accuracy: {xgb_acc:.4f}")
+print("\\nXGBoost Classification Report:")
+print(classification_report(y_test, xgb_test_preds, labels=CLASS_LABELS, target_names=CLASS_NAMES, zero_division=0))
 
-# Save Model
 xgb_model.save_model(os.path.join(MODELS_DIR, 'xgb_model.json'))
 print(f"💾 XGBoost saved to: {MODELS_DIR}/xgb_model.json")
 all_results['XGBoost'] = {'Macro_F1': round(xgb_f1, 4), 'Accuracy': round(xgb_acc, 4), 'Train_Time_s': round(xgb_time, 2)}
@@ -303,7 +347,7 @@ for name, col_indices in ablation_groups.items():
     sub_model = xgb.XGBClassifier(n_estimators=100, learning_rate=0.08, max_depth=5, eval_metric='mlogloss', random_state=42)
     sub_model.fit(X_train[:, col_indices], y_train)
     sub_preds = sub_model.predict(X_test[:, col_indices])
-    sub_f1 = f1_score(y_test, sub_preds, average='macro')
+    sub_f1 = f1_score(y_test, sub_preds, labels=CLASS_LABELS, average='macro', zero_division=0)
     ablation_results[name] = round(sub_f1, 4)
     print(f"  - {name}: Macro F1 = {sub_f1:.4f}")
 
@@ -320,9 +364,7 @@ sample_idx = np.random.choice(len(X_test), size=min(300, len(X_test)), replace=F
 shap_vals = explainer.shap_values(X_test[sample_idx])
 
 plt.figure(figsize=(10, 6))
-# For multi-class, shap_values is a list of arrays (one per class)
-if isinstance(shap_vals, list):
-    # Plot for Severe Drought (Class 3)
+if isinstance(shap_vals, list) and len(shap_vals) > 3:
     shap.summary_plot(shap_vals[3], X_test[sample_idx], feature_names=FEATURE_COLS, show=False)
     plt.title("SHAP Contributions for Severe Drought (Class 3)")
 else:
@@ -339,6 +381,7 @@ print("✅ SHAP plot saved.")""")
 import torch
 import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
+from sklearn.metrics import classification_report, f1_score
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"🖥️ Using device: {device} ({torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'CPU'})")
@@ -361,7 +404,6 @@ X_tr_seq, y_tr_seq = build_sequences(train_df, FEATURE_COLS, TARGET_COL, SEQ_LEN
 X_te_seq, y_te_seq = build_sequences(test_df, FEATURE_COLS, TARGET_COL, SEQ_LEN)
 print(f"  Train sequences: {X_tr_seq.shape} | Test sequences: {X_te_seq.shape}")
 
-# Scale features per timestep
 n_feats = len(FEATURE_COLS)
 X_tr_flat = scaler.transform(X_tr_seq.reshape(-1, n_feats)).reshape(X_tr_seq.shape)
 X_te_flat = scaler.transform(X_te_seq.reshape(-1, n_feats)).reshape(X_te_seq.shape)
@@ -411,7 +453,6 @@ for epoch in range(15):
 lstm_time = time.time() - t0
 print(f"✅ LSTM trained in {lstm_time:.2f}s")
 
-# Evaluate LSTM
 lstm_model.eval()
 all_preds = []
 with torch.no_grad():
@@ -421,11 +462,12 @@ with torch.no_grad():
         all_preds.extend(preds)
 all_preds = np.array(all_preds)
 
-lstm_f1 = f1_score(y_te_seq, all_preds, average='macro')
+lstm_f1 = f1_score(y_te_seq, all_preds, labels=CLASS_LABELS, average='macro', zero_division=0)
 lstm_acc = float(np.mean(y_te_seq == all_preds))
 print(f"📊 LSTM Test Macro F1: {lstm_f1:.4f} | Accuracy: {lstm_acc:.4f}")
+print("\\nLSTM Classification Report:")
+print(classification_report(y_te_seq, all_preds, labels=CLASS_LABELS, target_names=CLASS_NAMES, zero_division=0))
 
-# Save PyTorch Model
 torch.save(lstm_model.state_dict(), os.path.join(MODELS_DIR, 'lstm_model.pth'))
 print(f"💾 PyTorch LSTM weights saved to: {MODELS_DIR}/lstm_model.pth")
 all_results['LSTM Sequence'] = {'Macro_F1': round(lstm_f1, 4), 'Accuracy': round(lstm_acc, 4), 'Train_Time_s': round(lstm_time, 2)}""")
@@ -440,7 +482,7 @@ for m_name, model in [('Random Forest', rf), ('XGBoost', xgb_model)]:
         target_col_lead = f'target_lead_{lead}' if f'target_lead_{lead}' in test_df.columns else TARGET_COL
         y_lead_test = test_df[target_col_lead].values
         preds = model.predict(X_test)
-        score = f1_score(y_lead_test, preds, average='macro')
+        score = f1_score(y_lead_test, preds, labels=CLASS_LABELS, average='macro', zero_division=0)
         skills.append(round(score, 4))
     lead_results[m_name] = skills
 
@@ -478,7 +520,6 @@ comparison_df = pd.DataFrame(comparison_list)
 print("🏆 Final Model Benchmark Comparison:")
 display(comparison_df)
 
-# Zero-leakage audit
 print("\\n🔍 Verifying Temporal Leakage Audit:")
 max_train_date = train_df['date'].max()
 min_val_date = val_df['date'].max()
@@ -489,7 +530,6 @@ print(f"  - Min Test Date:  {min_test_date}")
 assert max_train_date < min_test_date, "❌ Data leakage detected!"
 print("  ✅ ZERO temporal leakage verified: Train and Test intervals are completely disjoint.")
 
-# Save final comparison report
 report_payload = {
     'comparison': comparison_list,
     'study_area': 'Oromia Region (Arsi-Bale Pilot)',
@@ -509,11 +549,9 @@ import shutil
 bundle_name = 'trained_models.zip'
 print("📦 Compressing models and evaluation reports into zip...")
 
-# Create temporary export directory
 export_dir = os.path.join(PROJECT_DIR, 'export_bundle')
 os.makedirs(export_dir, exist_ok=True)
 
-# Copy models
 if os.path.exists(MODELS_DIR):
     shutil.copytree(MODELS_DIR, os.path.join(export_dir, 'models'), dirs_exist_ok=True)
 if os.path.exists(REPORTS_DIR):
@@ -535,15 +573,13 @@ else:
 
 
 def build_modular_notebooks():
-    """Generates clean, consistent modular notebooks 06 through 10."""
-    
     # 06. Baseline Rule Model
     nb06 = NotebookBuilder("06. Baseline Rule Model", use_gpu=False)
     nb06.md("# 06. Baseline Rule-Based Model\n**From Space to Action** — Agricultural Drought Early Warning\nReference operational model using VCI thresholds.")
     nb06.code(COLAB_INIT_CODE)
     nb06.code(DATA_LOAD_CODE)
     nb06.code("""# Run VCI thresholding baseline
-from sklearn.metrics import classification_report, confusion_matrix, f1_score
+from sklearn.metrics import classification_report, f1_score
 
 def predict_vci(vci):
     preds = np.zeros(len(vci), dtype=int)
@@ -554,8 +590,8 @@ def predict_vci(vci):
 
 test_preds = predict_vci(test_df['vci'].values)
 print("Classification Report on Held-Out Test Set:")
-print(classification_report(test_df[TARGET_COL], test_preds, target_names=['Normal', 'Watch', 'Warning', 'Severe']))
-print(f"Macro F1 Score: {f1_score(test_df[TARGET_COL], test_preds, average='macro'):.4f}")""")
+print(classification_report(test_df[TARGET_COL], test_preds, labels=CLASS_LABELS, target_names=CLASS_NAMES, zero_division=0))
+print(f"Macro F1 Score: {f1_score(test_df[TARGET_COL], test_preds, labels=CLASS_LABELS, average='macro', zero_division=0):.4f}")""")
     nb06.save(os.path.join(NOTEBOOKS_DIR, "06_baseline_rule_model.ipynb"))
 
     # 07. Random Forest
@@ -580,8 +616,8 @@ rf.fit(X_tr, y_tr)
 
 preds = rf.predict(X_te)
 print("Test Report:")
-print(classification_report(y_te, preds, target_names=['Normal', 'Watch', 'Warning', 'Severe']))
-print(f"Macro F1: {f1_score(y_te, preds, average='macro'):.4f}")
+print(classification_report(y_te, preds, labels=CLASS_LABELS, target_names=CLASS_NAMES, zero_division=0))
+print(f"Macro F1: {f1_score(y_te, preds, labels=CLASS_LABELS, average='macro', zero_division=0):.4f}")
 
 joblib.dump(rf, os.path.join(MODELS_DIR, 'rf_model.pkl'))
 joblib.dump(scaler, os.path.join(MODELS_DIR, 'scaler.pkl'))
@@ -612,12 +648,11 @@ model.fit(X_tr, y_tr, eval_set=[(X_val, y_val)], verbose=False)
 
 preds = model.predict(X_te)
 print("Test Classification Report:")
-print(classification_report(y_te, preds, target_names=['Normal', 'Watch', 'Warning', 'Severe']))
+print(classification_report(y_te, preds, labels=CLASS_LABELS, target_names=CLASS_NAMES, zero_division=0))
 
 model.save_model(os.path.join(MODELS_DIR, 'xgb_model.json'))
 print("Saved models/xgb_model.json")
 
-# SHAP
 explainer = shap.TreeExplainer(model)
 sample = X_te[:200]
 shap_values = explainer.shap_values(sample)
@@ -688,7 +723,7 @@ net.eval()
 with torch.no_grad():
     te_preds = torch.argmax(net(torch.tensor(X_te_sc).to(device)), dim=1).cpu().numpy()
 
-print(classification_report(y_te_seq, te_preds, target_names=['Normal', 'Watch', 'Warning', 'Severe']))
+print(classification_report(y_te_seq, te_preds, labels=CLASS_LABELS, target_names=CLASS_NAMES, zero_division=0))
 torch.save(net.state_dict(), os.path.join(MODELS_DIR, 'lstm_model.pth'))
 print("Saved models/lstm_model.pth")""")
     nb09.save(os.path.join(NOTEBOOKS_DIR, "09_lstm_forecasting.ipynb"))
@@ -698,8 +733,7 @@ print("Saved models/lstm_model.pth")""")
     nb10.md("# 10. Benchmark Comparison & Zero-Leakage Audit\n**From Space to Action** — Agricultural Drought Early Warning\nFinal benchmark evaluation on held-out test data.")
     nb10.code(COLAB_INIT_CODE)
     nb10.code(DATA_LOAD_CODE)
-    nb10.code("""# Audit & Final Benchmark Export
-report_path = os.path.join(REPORTS_DIR, 'final_comparison.json')
+    nb10.code("""report_path = os.path.join(REPORTS_DIR, 'final_comparison.json')
 if os.path.exists(report_path):
     with open(report_path) as f:
         res = json.load(f)

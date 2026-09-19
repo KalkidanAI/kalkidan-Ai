@@ -2,11 +2,16 @@
 
 {% block content %}
 <div class="container mt-4">
-    <div class="dashboard-header glass-card">
-        <h2>Time-Series Analysis</h2>
-        <div class="controls">
-            <label for="zone-select">Select Zone: </label>
-            <select id="zone-select" class="form-control" style="width: 250px; display: inline-block;">
+
+    <!-- Header with controls -->
+    <div class="dashboard-header glass-card mb-4" style="padding:1.25rem 1.75rem;">
+        <div>
+            <h2 style="margin-bottom:0.25rem;"><i class="fa-solid fa-chart-line" style="color:#4f8ef7;margin-right:0.5rem;"></i> Time-Series Analysis</h2>
+            <p class="text-muted text-sm">Historical vegetation, rainfall, soil moisture, and drought risk indicators</p>
+        </div>
+        <div style="display:flex; align-items:center; gap:0.75rem;">
+            <label for="zone-select" class="text-sm text-muted" style="white-space:nowrap;">Select Zone:</label>
+            <select id="zone-select" class="form-control" style="width:200px;">
                 <option value="Borena">Borena</option>
                 <option value="East Hararghe">East Hararghe</option>
                 <option value="West Hararghe">West Hararghe</option>
@@ -17,26 +22,57 @@
         </div>
     </div>
 
-    <div class="charts-grid mt-4">
+    <!-- Summary banners -->
+    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1rem; margin-bottom:1.5rem;">
+        <div class="glass-card" style="padding:1rem 1.25rem; border-left:3px solid #34d399;">
+            <div class="text-xs text-muted" style="text-transform:uppercase; letter-spacing:1px; margin-bottom:0.25rem;">Vegetation Health</div>
+            <div style="font-size:1.4rem; font-weight:700; color:#34d399;">NDVI + VCI</div>
+            <div class="text-xs text-muted">Sentinel-2 derived indices</div>
+        </div>
+        <div class="glass-card" style="padding:1rem 1.25rem; border-left:3px solid #4f8ef7;">
+            <div class="text-xs text-muted" style="text-transform:uppercase; letter-spacing:1px; margin-bottom:0.25rem;">Precipitation</div>
+            <div style="font-size:1.4rem; font-weight:700; color:#4f8ef7;">CHIRPS Rainfall</div>
+            <div class="text-xs text-muted">Monthly mm accumulation</div>
+        </div>
+        <div class="glass-card" style="padding:1rem 1.25rem; border-left:3px solid #a78bfa;">
+            <div class="text-xs text-muted" style="text-transform:uppercase; letter-spacing:1px; margin-bottom:0.25rem;">Soil Moisture</div>
+            <div style="font-size:1.4rem; font-weight:700; color:#a78bfa;">ERA5-Land</div>
+            <div class="text-xs text-muted">Volumetric water content</div>
+        </div>
+        <div class="glass-card" style="padding:1rem 1.25rem; border-left:3px solid #ef4444;">
+            <div class="text-xs text-muted" style="text-transform:uppercase; letter-spacing:1px; margin-bottom:0.25rem;">AI Risk Score</div>
+            <div style="font-size:1.4rem; font-weight:700; color:#ef4444;">XGBoost + LSTM</div>
+            <div class="text-xs text-muted">0–1 drought probability</div>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="charts-grid">
         <div class="chart-card glass-card">
-            <h3>Vegetation Indices (NDVI & VCI)</h3>
+            <h3>Vegetation Indices (NDVI &amp; VCI)</h3>
             <div id="chart-veg" class="plot-container"></div>
         </div>
-        
+
         <div class="chart-card glass-card">
-            <h3>Rainfall (mm/month)</h3>
+            <h3>Rainfall (mm / month)</h3>
             <div id="chart-rain" class="plot-container"></div>
         </div>
-        
+
         <div class="chart-card glass-card">
-            <h3>Soil Moisture</h3>
+            <h3>Soil Moisture (m³/m³)</h3>
             <div id="chart-sm" class="plot-container"></div>
         </div>
-        
+
         <div class="chart-card glass-card">
-            <h3>Drought Risk Prediction Score</h3>
+            <h3>Drought Risk Score — AI Prediction</h3>
             <div id="chart-risk" class="plot-container"></div>
         </div>
+    </div>
+
+    <div class="glass-card mt-4" style="padding:1rem 1.5rem; font-size:0.82rem; color:#7c8fad; display:flex; align-items:center; gap:0.75rem;">
+        <i class="fa-solid fa-circle-info" style="color:#4f8ef7; font-size:1rem;"></i>
+        Dashed red and orange lines on the Risk Score chart mark the Severe (0.65) and Warning (0.45) thresholds respectively.
+        Change the zone using the selector above to compare different districts.
     </div>
 </div>
 {% endblock %}
@@ -45,7 +81,7 @@
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         loadTimeseriesData('Borena');
-        
+
         document.getElementById('zone-select').addEventListener('change', (e) => {
             loadTimeseriesData(e.target.value);
         });

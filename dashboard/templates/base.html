@@ -3,21 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>From Space to Action - Drought Early Warning</title>
-    
+    <meta name="description" content="From Space to Action — AI-powered Agricultural Drought Early Warning System for Oromia Region, Ethiopia. Using satellite data, XGBoost, Random Forest and LSTM models.">
+    <title>From Space to Action | Drought Early Warning System</title>
+
     <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    
+
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    
+
     {% block extra_head %}{% endblock %}
+
+    <style>
+        /* Dark Leaflet popup overrides */
+        .leaflet-popup-content-wrapper {
+            background: #0a0a1f !important;
+            border: 1px solid rgba(79,142,247,0.25) !important;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.6) !important;
+            border-radius: 10px !important;
+            padding: 0 !important;
+        }
+        .leaflet-popup-tip {
+            background: #0a0a1f !important;
+        }
+        .leaflet-popup-content {
+            margin: 0 !important;
+        }
+        .leaflet-control-zoom a {
+            background: #0a0a1f !important;
+            color: #7c8fad !important;
+            border-color: rgba(79,142,247,0.2) !important;
+        }
+        .leaflet-control-zoom a:hover {
+            background: rgba(79,142,247,0.15) !important;
+            color: white !important;
+        }
+        .leaflet-bar {
+            border: 1px solid rgba(79,142,247,0.2) !important;
+        }
+        .leaflet-control-attribution {
+            background: rgba(4,4,15,0.85) !important;
+            color: #7c8fad !important;
+            font-size: 0.65rem !important;
+        }
+        .leaflet-control-attribution a { color: #4f8ef7 !important; }
+    </style>
 </head>
 <body>
     <!-- Navbar -->
@@ -28,7 +64,7 @@
                 <span class="logo-text">SPACE TO ACTION</span>
             </a>
             <div class="nav-links">
-                <a href="/" class="{{ 'active' if request.path == '/' else '' }}"><i class="fa-solid fa-home"></i> Home</a>
+                <a href="/" class="{{ 'active' if request.path == '/' else '' }}"><i class="fa-solid fa-house-chimney"></i> Home</a>
                 <a href="/map" class="{{ 'active' if request.path == '/map' else '' }}"><i class="fa-solid fa-map-location-dot"></i> Map</a>
                 <a href="/analysis" class="{{ 'active' if request.path == '/analysis' else '' }}"><i class="fa-solid fa-chart-line"></i> Analysis</a>
                 <a href="/models" class="{{ 'active' if request.path == '/models' else '' }}"><i class="fa-solid fa-brain"></i> Models</a>
@@ -43,7 +79,7 @@
 
     <!-- Demo Banner -->
     <div class="demo-banner">
-        <i class="fa-solid fa-flask"></i> MVP DEMONSTRATION MODE - USING SYNTHETIC SAMPLE DATA
+        <i class="fa-solid fa-flask" style="margin-right:0.4rem;"></i> MVP DEMONSTRATION MODE &mdash; SYNTHETIC SAMPLE DATA
     </div>
 
     <!-- Main Content -->
@@ -58,20 +94,25 @@
                 <span class="egate">EGATE</span> Earth Observation Research
             </div>
             <div class="footer-text">
-                Kalkidan Wondimagegnehu Alemneh | Oromia Region Agricultural Drought Early Warning System MVP
+                Kalkidan Wondimagegnehu Alemneh &mdash; Oromia Agricultural Drought Early Warning System
+            </div>
+            <div class="footer-links">
+                <a href="/about">Methodology</a>
+                <a href="/models">Models</a>
+                <a href="/map">Live Map</a>
             </div>
         </div>
     </footer>
 
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    
+
     <!-- Plotly JS -->
     <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
-    
+
     <!-- Custom JS -->
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
-    
+
     {% block extra_scripts %}{% endblock %}
 </body>
 </html>

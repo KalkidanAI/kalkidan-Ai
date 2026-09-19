@@ -1,66 +1,161 @@
 {% extends "base.html" %}
 
+{% block extra_head %}
+<style>
+    .hero-section {
+        min-height: 85vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    canvas#hero-canvas {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="hero-section">
+<!-- HERO -->
+<section class="hero-section">
+    <canvas id="hero-canvas" class="hero-bg-canvas"></canvas>
     <div class="hero-content">
-        <h1 class="hero-title">FROM SPACE TO ACTION</h1>
-        <h2 class="hero-subtitle">Using AI and Satellite Data for Agricultural Drought Early Warning in Ethiopia</h2>
-        <p class="hero-text">An advanced machine learning prototype processing multi-source earth observation data to predict agricultural drought up to 30 days in advance in the Oromia region.</p>
+        <div class="live-indicator">
+            <div class="live-dot"></div>
+            SYSTEM OPERATIONAL — OROMIA REGION, ETHIOPIA
+        </div>
+
+        <div class="hero-badge">
+            <i class="fa-solid fa-satellite-dish"></i>
+            EGATE Earth Observation Research
+        </div>
+
+        <h1 class="hero-title">FROM SPACE<br>TO ACTION</h1>
+
+        <h2 class="hero-subtitle">
+            AI-Powered Agricultural Drought Early Warning<br>using Satellite Data &amp; Machine Learning
+        </h2>
+
+        <p class="hero-text">
+            An advanced multi-modal prediction system processing Sentinel-2, CHIRPS, and ERA5-Land
+            satellite observations through XGBoost, Random Forest, and LSTM neural networks to deliver
+            drought risk alerts up to <strong>30 days in advance</strong> for the Arsi-Bale pilot zone.
+        </p>
+
         <div class="hero-buttons">
-            <a href="/map" class="btn btn-primary">Explore Interactive Map <i class="fa-solid fa-arrow-right"></i></a>
-            <a href="/about" class="btn btn-secondary">Read Methodology</a>
+            <a href="/map" class="btn btn-primary" id="hero-map-btn">
+                <i class="fa-solid fa-map-location-dot"></i> Explore Interactive Map
+            </a>
+            <a href="/models" class="btn btn-secondary" id="hero-models-btn">
+                <i class="fa-solid fa-brain"></i> View Model Results
+            </a>
+            <a href="/about" class="btn btn-secondary" id="hero-about-btn">
+                <i class="fa-solid fa-book-open"></i> Methodology
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- STATS -->
+<div class="container">
+    <div class="stats-section">
+        <div class="stat-card glass-card">
+            <span class="stat-icon"><i class="fa-solid fa-satellite"></i></span>
+            <div class="stat-value" data-count="5">5</div>
+            <div class="stat-label">Data Sources</div>
+        </div>
+        <div class="stat-card glass-card">
+            <span class="stat-icon"><i class="fa-solid fa-brain"></i></span>
+            <div class="stat-value" data-count="4">4</div>
+            <div class="stat-label">AI Models</div>
+        </div>
+        <div class="stat-card glass-card">
+            <span class="stat-icon"><i class="fa-solid fa-calendar-days"></i></span>
+            <div class="stat-value" data-count="7">7+</div>
+            <div class="stat-label">Years of Data</div>
+        </div>
+        <div class="stat-card glass-card">
+            <span class="stat-icon"><i class="fa-solid fa-clock"></i></span>
+            <div class="stat-value" data-count="30">30</div>
+            <div class="stat-label">Day Lead Time</div>
+        </div>
+        <div class="stat-card glass-card">
+            <span class="stat-icon"><i class="fa-solid fa-map-pin"></i></span>
+            <div class="stat-value">200+</div>
+            <div class="stat-label">Monitored Zones</div>
         </div>
     </div>
 </div>
 
-<div class="container stats-section">
-    <div class="stat-card glass-card">
-        <div class="stat-icon"><i class="fa-solid fa-satellite"></i></div>
-        <div class="stat-value">5</div>
-        <div class="stat-label">Data Sources</div>
-    </div>
-    <div class="stat-card glass-card">
-        <div class="stat-icon"><i class="fa-solid fa-brain"></i></div>
-        <div class="stat-value">4</div>
-        <div class="stat-label">AI Models</div>
-    </div>
-    <div class="stat-card glass-card">
-        <div class="stat-icon"><i class="fa-solid fa-calendar-days"></i></div>
-        <div class="stat-value">7+</div>
-        <div class="stat-label">Years of Data</div>
-    </div>
-    <div class="stat-card glass-card">
-        <div class="stat-icon"><i class="fa-solid fa-map"></i></div>
-        <div class="stat-value">Oromia</div>
-        <div class="stat-label">Target Region</div>
-    </div>
-</div>
-
+<!-- PIPELINE -->
 <div class="container methodology-section">
-    <h3 class="section-title">System Pipeline</h3>
+    <h3 class="section-title"><i class="fa-solid fa-diagram-project" style="margin-right:0.5rem;color:#4f8ef7;"></i>
+        End-to-End Pipeline</h3>
     <div class="pipeline-diagram glass-card">
         <div class="pipeline-step">
             <div class="step-icon"><i class="fa-solid fa-satellite"></i></div>
             <h4>Data Collection</h4>
-            <p>Sentinel-2, Landsat, CHIRPS, ERA5-Land via GEE</p>
+            <p>Sentinel-2, Landsat 8/9, CHIRPS Rainfall, ERA5-Land via Google Earth Engine</p>
         </div>
         <div class="pipeline-arrow"><i class="fa-solid fa-chevron-right"></i></div>
         <div class="pipeline-step">
             <div class="step-icon"><i class="fa-solid fa-microchip"></i></div>
-            <h4>Feature Eng.</h4>
-            <p>NDVI, VCI, EVI, Rainfall Anomalies</p>
+            <h4>Feature Engineering</h4>
+            <p>NDVI, VCI, EVI, SPI, Rainfall Anomalies, Lagged Time-Series Features</p>
         </div>
         <div class="pipeline-arrow"><i class="fa-solid fa-chevron-right"></i></div>
         <div class="pipeline-step">
             <div class="step-icon"><i class="fa-solid fa-network-wired"></i></div>
             <h4>AI Modeling</h4>
-            <p>Random Forest, XGBoost, LSTM</p>
+            <p>Rule Baseline, Random Forest, XGBoost + SHAP, PyTorch LSTM</p>
+        </div>
+        <div class="pipeline-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+        <div class="pipeline-step">
+            <div class="step-icon"><i class="fa-solid fa-map"></i></div>
+            <h4>Risk Mapping</h4>
+            <p>Spatial drought class prediction (Normal / Watch / Warning / Severe)</p>
         </div>
         <div class="pipeline-arrow"><i class="fa-solid fa-chevron-right"></i></div>
         <div class="pipeline-step">
             <div class="step-icon"><i class="fa-solid fa-bell"></i></div>
             <h4>Early Action</h4>
-            <p>Risk mapping & targeted alerts</p>
+            <p>Automated alerts to farmers &amp; government agencies, 10-30 days ahead</p>
+        </div>
+    </div>
+</div>
+
+<!-- DATA SOURCES -->
+<div class="container" style="margin-top:3rem;">
+    <h3 class="section-title"><i class="fa-solid fa-database" style="margin-right:0.5rem;color:#4f8ef7;"></i> Data
+        Sources</h3>
+    <div class="data-sources-grid">
+        <div class="data-source-card">
+            <i class="fa-solid fa-eye"></i>
+            <h4>Sentinel-2 / Landsat</h4>
+            <p>Multispectral optical imagery for NDVI, EVI, and Vegetation Condition Index computation</p>
+        </div>
+        <div class="data-source-card">
+            <i class="fa-solid fa-cloud-rain"></i>
+            <h4>CHIRPS Rainfall</h4>
+            <p>Climate Hazards group InfraRed Precipitation — 0.05° daily rainfall estimates</p>
+        </div>
+        <div class="data-source-card">
+            <i class="fa-solid fa-temperature-half"></i>
+            <h4>ERA5-Land</h4>
+            <p>ECMWF reanalysis for soil moisture, temperature, and evapotranspiration</p>
+        </div>
+        <div class="data-source-card">
+            <i class="fa-solid fa-globe"></i>
+            <h4>Google Earth Engine</h4>
+            <p>Cloud-based planetary-scale geospatial processing infrastructure</p>
+        </div>
+        <div class="data-source-card">
+            <i class="fa-solid fa-wheat-awn"></i>
+            <h4>FAO GAEZ</h4>
+            <p>Global agro-ecological zones for crop-specific drought impact assessment</p>
         </div>
     </div>
 </div>

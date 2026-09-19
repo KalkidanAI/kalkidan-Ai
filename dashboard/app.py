@@ -83,4 +83,4 @@ def api_model_results():
 
 if __name__ == '__main__':
     # Run standalone
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True, host='0.0.0.0', port=5001)

@@ -94,4 +94,4 @@ pip install -r requirements.txt
 # 2. Run web dashboard
 python dashboard/app.py
 ```
-Open `http://localhost:5000` to view the interactive spatial risk map and model benchmarks.
+Open `http://localhost:500` to view the interactive spatial risk map and model benchmarks.

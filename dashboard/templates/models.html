@@ -2,45 +2,81 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h2 class="mb-4">Model Performance Comparison</h2>
-    
-    <div class="models-summary mt-4" id="models-summary-cards">
-        <!-- Filled by JS -->
-    </div>
-    
-    <div class="glass-card mt-4 p-4">
-        <h3>Metrics Overview</h3>
-        <div class="table-responsive">
-            <table class="data-table" id="models-table">
-                <thead>
-                    <tr>
-                        <th>Model</th>
-                        <th>F1 Score</th>
-                        <th>FAR (False Alarm)</th>
-                        <th>POD (Detection)</th>
-                        <th>RMSE</th>
-                        <th>Lead 10-day</th>
-                        <th>Lead 30-day</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Filled by JS -->
-                </tbody>
-            </table>
+
+    <div class="flex-between mb-4" style="flex-wrap:wrap; gap:1rem;">
+        <div>
+            <h2 style="margin-bottom:0.25rem;"><i class="fa-solid fa-brain" style="color:#4f8ef7; margin-right:0.5rem;"></i> Model Performance</h2>
+            <p class="text-muted text-sm">Comparison of Rule Baseline, Random Forest, XGBoost, and PyTorch LSTM models</p>
+        </div>
+        <div style="display:flex; gap:0.75rem;">
+            <a href="/analysis" class="btn btn-secondary"><i class="fa-solid fa-chart-line"></i> View Time Series</a>
         </div>
     </div>
 
+    <!-- Score Cards -->
+    <div id="models-summary-cards">
+        <!-- Filled by JS with animated score cards -->
+    </div>
+
+    <!-- Metrics Table -->
+    <div class="glass-card p-4" style="overflow-x:auto;">
+        <h3 style="font-size:1rem; margin-bottom:1.25rem; color:white;">
+            <i class="fa-solid fa-table" style="color:#4f8ef7; margin-right:0.5rem;"></i> Full Metrics Overview
+        </h3>
+        <table class="data-table" id="models-table">
+            <thead>
+                <tr>
+                    <th>Model</th>
+                    <th>F1 Score ↑</th>
+                    <th>FAR ↓</th>
+                    <th>POD ↑</th>
+                    <th>RMSE ↓</th>
+                    <th>Lead 10-day F1</th>
+                    <th>Lead 30-day F1</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Filled by JS -->
+            </tbody>
+        </table>
+        <div style="margin-top:0.75rem; font-size:0.78rem; color:#4a5568;">
+            FAR = False Alarm Ratio (lower is better) &nbsp;|&nbsp; POD = Probability of Detection (higher is better) &nbsp;|&nbsp; RMSE = Root Mean Square Error
+        </div>
+    </div>
+
+    <!-- Charts -->
     <div class="charts-grid mt-4">
         <div class="chart-card glass-card">
             <h3>Skill Degradation vs Lead Time</h3>
             <div id="chart-lead-time" class="plot-container"></div>
         </div>
-        
+
         <div class="chart-card glass-card">
-            <h3>Feature Importance (XGBoost)</h3>
+            <h3>Feature Importance (XGBoost / RF)</h3>
             <div id="chart-importance" class="plot-container"></div>
         </div>
     </div>
+
+    <!-- Model explanations -->
+    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:1.25rem; margin-top:1.5rem;">
+        <div class="glass-card" style="padding:1.5rem; border-top:3px solid #7c8fad;">
+            <h4 style="margin-bottom:0.5rem; font-size:0.95rem;">🔷 Rule Baseline</h4>
+            <p class="text-muted text-sm" style="line-height:1.6;">Agronomic threshold model using VCI (&lt;20 → Severe, &lt;35 → Warning, &lt;50 → Watch). Provides interpretable baseline for comparison.</p>
+        </div>
+        <div class="glass-card" style="padding:1.5rem; border-top:3px solid #34d399;">
+            <h4 style="margin-bottom:0.5rem; font-size:0.95rem;">🌲 Random Forest</h4>
+            <p class="text-muted text-sm" style="line-height:1.6;">300-tree ensemble classifier trained with class balancing. Provides robust feature importance via mean decrease in impurity.</p>
+        </div>
+        <div class="glass-card" style="padding:1.5rem; border-top:3px solid #4f8ef7;">
+            <h4 style="margin-bottom:0.5rem; font-size:0.95rem;">⚡ XGBoost + SHAP</h4>
+            <p class="text-muted text-sm" style="line-height:1.6;">Gradient-boosted classifier with SHAP explainability. Best overall F1 on held-out test set. Includes 10/30-day lead time variants.</p>
+        </div>
+        <div class="glass-card" style="padding:1.5rem; border-top:3px solid #a78bfa;">
+            <h4 style="margin-bottom:0.5rem; font-size:0.95rem;">🧠 PyTorch LSTM</h4>
+            <p class="text-muted text-sm" style="line-height:1.6;">Bidirectional LSTM (2-layer, 128 units) processing 12-month rolling sequences. GPU-trained on Colab. Strong at long-lead predictions.</p>
+        </div>
+    </div>
+
 </div>
 {% endblock %}
 

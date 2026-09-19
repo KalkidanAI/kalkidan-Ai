@@ -1,51 +1,89 @@
 {% extends "base.html" %}
 
+{% block extra_head %}
+<style>
+.map-layout {
+    /* Remove bottom gap */
+    height: calc(100vh - 115px);
+}
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="map-layout">
-    <div class="map-sidebar glass-card">
-        <h3>Drought Risk Monitor</h3>
-        <p class="text-sm mb-4">Oromia Region, Ethiopia</p>
-        
+    <!-- Sidebar -->
+    <div class="map-sidebar">
+        <h3><i class="fa-solid fa-satellite-dish" style="color:#4f8ef7;margin-right:0.5rem;"></i>Drought Monitor</h3>
+        <p class="text-sm text-muted mb-4">Oromia Region, Ethiopia &mdash; Arsi-Bale Pilot Zone</p>
+
         <div class="stats-panel mb-4">
             <div class="stat-row">
-                <span>Total Locations Monitored:</span>
-                <strong id="total-cells">--</strong>
+                <span class="text-muted">Monitored Locations</span>
+                <strong id="total-cells">—</strong>
             </div>
             <div class="stat-row">
-                <span>Locations at Risk (Warning+):</span>
-                <strong id="risk-cells" class="text-warning">--</strong>
+                <span class="text-muted">At Risk (Warning+)</span>
+                <strong id="risk-cells" style="color:#f97316;">—</strong>
+            </div>
+            <div class="stat-row">
+                <span class="text-muted">Severe</span>
+                <strong id="severe-count" style="color:#ef4444;">—</strong>
+            </div>
+            <div class="stat-row">
+                <span class="text-muted">Warning</span>
+                <strong id="warning-count" style="color:#f97316;">—</strong>
+            </div>
+            <div class="stat-row">
+                <span class="text-muted">Watch</span>
+                <strong id="watch-count" style="color:#f59e0b;">—</strong>
+            </div>
+            <div class="stat-row">
+                <span class="text-muted">Normal</span>
+                <strong id="normal-count" style="color:#2ecc71;">—</strong>
             </div>
         </div>
 
-        <h4>Risk Legend (VCI)</h4>
+        <h4 style="font-size:0.78rem; text-transform:uppercase; letter-spacing:1px; color:#7c8fad; margin-bottom:0.75rem;">Risk Legend (VCI-based)</h4>
         <div class="legend">
             <div class="legend-item">
-                <span class="color-box" style="background: #2ecc71;"></span>
-                <span>Normal (>50)</span>
+                <span class="color-box" style="background:#2ecc71;box-shadow:0 0 6px rgba(46,204,113,0.5);"></span>
+                <span>Normal <span class="text-muted text-xs">(VCI &gt; 50)</span></span>
             </div>
             <div class="legend-item">
-                <span class="color-box" style="background: #f1c40f;"></span>
-                <span>Watch (35-50)</span>
+                <span class="color-box" style="background:#f59e0b;box-shadow:0 0 6px rgba(245,158,11,0.5);"></span>
+                <span>Watch <span class="text-muted text-xs">(VCI 35–50)</span></span>
             </div>
             <div class="legend-item">
-                <span class="color-box" style="background: #e67e22;"></span>
-                <span>Warning (20-35)</span>
+                <span class="color-box" style="background:#f97316;box-shadow:0 0 6px rgba(249,115,22,0.5);"></span>
+                <span>Warning <span class="text-muted text-xs">(VCI 20–35)</span></span>
             </div>
             <div class="legend-item">
-                <span class="color-box" style="background: #e74c3c;"></span>
-                <span>Severe (<20)</span>
+                <span class="color-box" style="background:#ef4444;box-shadow:0 0 6px rgba(239,68,68,0.5);"></span>
+                <span>Severe <span class="text-muted text-xs">(VCI &lt; 20)</span></span>
             </div>
         </div>
-        
+
         <div class="mt-4">
-            <h4>Filters</h4>
+            <h4 style="font-size:0.78rem; text-transform:uppercase; letter-spacing:1px; color:#7c8fad; margin-bottom:0.5rem;">Filter by Zone</h4>
             <select id="zone-filter" class="form-control">
                 <option value="all">All Zones</option>
                 <!-- Filled via JS -->
             </select>
         </div>
+
+        <div class="mt-4">
+            <a href="/analysis" class="btn btn-secondary" style="width:100%; justify-content:center; font-size:0.85rem;">
+                <i class="fa-solid fa-chart-line"></i> View Time-Series Analysis
+            </a>
+        </div>
+
+        <div class="mt-4" style="font-size:0.75rem; color:#4a5568; line-height:1.5;">
+            <i class="fa-solid fa-circle-info" style="margin-right:0.3rem;"></i>
+            Click any marker to see zone details. Map uses free OpenStreetMap tiles.
+        </div>
     </div>
-    
+
+    <!-- Map -->
     <div class="map-container">
         <div id="drought-map"></div>
     </div>

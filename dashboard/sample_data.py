@@ -35,6 +35,8 @@ def generate_spatial_data():
             risk_class = "Severe"
             risk_score = np.random.uniform(0.8, 1.0)
             
+        rainfall_mm = max(0, 120 - dry_factor * 90 + np.random.normal(0, 15))
+        soil_moist = max(0.05, min(0.45, 0.35 - dry_factor * 0.2 + np.random.normal(0, 0.03)))
         data.append({
             "id": i,
             "lat": round(lat, 4),
@@ -42,6 +44,8 @@ def generate_spatial_data():
             "zone": random.choice(zones),
             "vci": round(vci, 2),
             "ndvi": round(ndvi, 3),
+            "rainfall_mm": round(rainfall_mm, 1),
+            "soil_moisture": round(soil_moist, 3),
             "risk_score": round(risk_score, 2),
             "risk_class": risk_class
         })
@@ -119,6 +123,7 @@ def generate_model_results():
         },
         "lead_time_skill": {
             "leads": [10, 20, 30, 40, 50, 60],
+            "random_forest": [0.82, 0.72, 0.61, 0.50, 0.38, 0.30],
             "xgboost": [0.86, 0.78, 0.68, 0.55, 0.42, 0.35],
             "lstm": [0.84, 0.79, 0.74, 0.62, 0.55, 0.48]
         }

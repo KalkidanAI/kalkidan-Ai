@@ -2,30 +2,53 @@
 
 {% block content %}
 <div class="container mt-4">
-    <div class="flex-between mb-4">
-        <h2>Early Warning Alerts</h2>
-        <button class="btn btn-primary" onclick="alert('CSV Export generated (Demo)')"><i class="fa-solid fa-download"></i> Export Report</button>
+
+    <div class="flex-between mb-4" style="flex-wrap:wrap; gap:1rem;">
+        <div>
+            <h2 style="margin-bottom:0.25rem;"><i class="fa-solid fa-bell" style="color:#f59e0b; margin-right:0.5rem;"></i> Early Warning Alerts</h2>
+            <p class="text-muted text-sm">AI-generated drought risk alerts for Oromia zones — Arsi-Bale pilot area</p>
+        </div>
+        <button class="btn btn-success" onclick="exportAlerts()">
+            <i class="fa-solid fa-file-csv"></i> Export Report
+        </button>
     </div>
 
-    <div class="alert-stats stats-section mb-4">
+    <!-- Alert Summary Counts -->
+    <div class="stats-section mb-4" style="grid-template-columns:repeat(3,1fr); max-width:600px;">
         <div class="stat-card glass-card alert-stat-severe">
+            <span class="stat-icon" style="font-size:1.5rem;"><i class="fa-solid fa-triangle-exclamation"></i></span>
             <div class="stat-value" id="count-severe">0</div>
             <div class="stat-label">Severe</div>
         </div>
         <div class="stat-card glass-card alert-stat-warning">
+            <span class="stat-icon" style="font-size:1.5rem;"><i class="fa-solid fa-circle-exclamation"></i></span>
             <div class="stat-value" id="count-warning">0</div>
             <div class="stat-label">Warning</div>
         </div>
         <div class="stat-card glass-card alert-stat-watch">
+            <span class="stat-icon" style="font-size:1.5rem;"><i class="fa-solid fa-eye"></i></span>
             <div class="stat-value" id="count-watch">0</div>
             <div class="stat-label">Watch</div>
         </div>
     </div>
 
-    <div class="alerts-list" id="alerts-container">
-        <div class="loading-spinner"><i class="fa-solid fa-circle-notch fa-spin"></i> Loading alerts...</div>
-        <!-- Filled by JS -->
+    <!-- Note -->
+    <div class="glass-card mb-4" style="padding:0.875rem 1.25rem; border-left:3px solid #4f8ef7; display:flex; align-items:flex-start; gap:0.75rem;">
+        <i class="fa-solid fa-robot" style="color:#4f8ef7; margin-top:0.1rem;"></i>
+        <div class="text-sm" style="line-height:1.6; color:#9ca3af;">
+            Alerts are generated automatically by the XGBoost model pipeline with a 10-day lead time.
+            Confidence scores reflect model posterior probability for the predicted class.
+            This is a prototype — do not use for official emergency response.
+        </div>
     </div>
+
+    <!-- Alert List -->
+    <div id="alerts-container">
+        <div class="loading-spinner">
+            <i class="fa-solid fa-circle-notch fa-spin"></i> Loading alerts...
+        </div>
+    </div>
+
 </div>
 {% endblock %}
 
@@ -34,5 +57,21 @@
     document.addEventListener('DOMContentLoaded', () => {
         loadAlerts();
     });
+
+    function exportAlerts() {
+        // Simulate CSV export
+        const blob = new Blob([
+            'Zone,Level,Date,Confidence,Lead_Days,Message\n' +
+            'Demonstration data — run real pipeline to generate actual CSV export'
+        ], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'drought_alerts_oromia.csv';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
 </script>
 {% endblock %}

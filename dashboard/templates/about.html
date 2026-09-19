@@ -2,42 +2,112 @@
 
 {% block content %}
 <div class="container mt-4">
-    <div class="glass-card p-4">
-        <h2 class="mb-4">About the Project</h2>
-        
-        <div class="about-grid">
-            <div class="about-content">
-                <h3>From Space to Action</h3>
-                <p>This dashboard is a Minimum Viable Product (MVP) demonstrating an AI-powered Agricultural Drought Early Warning System for the Oromia region of Ethiopia.</p>
-                
-                <h4>Developer Information</h4>
-                <ul>
-                    <li><strong>Student:</strong> Kalkidan Wondimagegnehu Alemneh</li>
-                    <li><strong>Institution:</strong> EGATE (School of Gifted and Talented)</li>
-                    <li><strong>Discipline:</strong> Astronomy and Space Technology — Earth Observation</li>
-                </ul>
-                
-                <h4 class="mt-4">Methodology</h4>
-                <p>The system utilizes multi-source Earth Observation data processed through Google Earth Engine (GEE). Key features including NDVI, VCI, and Rainfall anomalies are extracted and fed into advanced machine learning models (XGBoost, Random Forest, LSTM) to predict drought severity classes up to 30 days in advance.</p>
-                
-                <div class="alert-box alert-warning mt-4">
-                    <strong><i class="fa-solid fa-triangle-exclamation"></i> Disclaimer:</strong>
-                    This is a research prototype built for educational and demonstration purposes. The data shown in this MVP mode is synthetically generated for demonstration. Do not use for official agricultural or disaster response planning.
+
+    <!-- Hero banner -->
+    <div class="glass-card p-6 mb-4" style="background: linear-gradient(135deg, rgba(10,15,40,0.95), rgba(5,10,25,0.98)); border:1px solid rgba(79,142,247,0.2); position:relative; overflow:hidden;">
+        <div style="position:absolute; top:-40px; right:-40px; width:200px; height:200px; background:radial-gradient(circle, rgba(79,142,247,0.12) 0%, transparent 70%); pointer-events:none;"></div>
+        <div style="position:absolute; bottom:-40px; left:50%; width:200px; height:200px; background:radial-gradient(circle, rgba(52,211,153,0.08) 0%, transparent 70%); pointer-events:none;"></div>
+
+        <div style="position:relative; z-index:1;">
+            <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:1rem;">
+                <i class="fa-solid fa-satellite" style="font-size:2rem; color:#4f8ef7;"></i>
+                <div>
+                    <h2 style="margin-bottom:0.15rem;">From Space to Action</h2>
+                    <div class="text-muted text-sm">Agricultural Drought Early Warning System — Oromia, Ethiopia</div>
                 </div>
             </div>
-            
-            <div class="about-tech">
-                <div class="glass-card p-4">
-                    <h4>Technology Stack</h4>
-                    <ul class="tech-list">
-                        <li><i class="fa-brands fa-python"></i> Python</li>
-                        <li><i class="fa-solid fa-database"></i> Google Earth Engine API</li>
-                        <li><i class="fa-solid fa-brain"></i> Scikit-Learn & XGBoost</li>
-                        <li><i class="fa-solid fa-server"></i> Flask Web Framework</li>
-                        <li><i class="fa-solid fa-map"></i> Leaflet.js</li>
-                        <li><i class="fa-solid fa-chart-pie"></i> Plotly.js</li>
-                    </ul>
+
+            <p style="line-height:1.7; color:#9ca3af; max-width:800px; margin-bottom:1.25rem;">
+                This dashboard is a prototype demonstrating an AI-powered drought prediction pipeline
+                for the Oromia Region of Ethiopia, focusing on the <strong style="color:#e2e8f0;">Arsi-Bale pilot zone</strong>.
+                The system processes multi-source Earth Observation data to predict drought severity
+                classes up to <strong style="color:#4f8ef7;">30 days in advance</strong>.
+            </p>
+
+            <div style="display:flex; gap:1rem; flex-wrap:wrap;">
+                <a href="/map" class="btn btn-primary"><i class="fa-solid fa-map-location-dot"></i> Explore Map</a>
+                <a href="/models" class="btn btn-secondary"><i class="fa-solid fa-brain"></i> Model Results</a>
+                <a href="/analysis" class="btn btn-secondary"><i class="fa-solid fa-chart-line"></i> Time-Series</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="about-grid">
+        <!-- Left: Content -->
+        <div>
+            <div class="glass-card p-4 mb-4">
+                <h3 style="margin-bottom:1rem;"><i class="fa-solid fa-user-graduate" style="color:#4f8ef7; margin-right:0.5rem;"></i> Developer</h3>
+                <div style="display:grid; gap:0.75rem;">
+                    <div style="display:flex; gap:1rem;">
+                        <span class="text-muted text-sm" style="min-width:120px;">Student</span>
+                        <span style="font-weight:600;">Kalkidan Wondimagegnehu Alemneh</span>
+                    </div>
+                    <div style="display:flex; gap:1rem;">
+                        <span class="text-muted text-sm" style="min-width:120px;">Institution</span>
+                        <span>EGATE (School of Gifted and Talented), Ethiopia</span>
+                    </div>
+                    <div style="display:flex; gap:1rem;">
+                        <span class="text-muted text-sm" style="min-width:120px;">Discipline</span>
+                        <span>Astronomy &amp; Space Technology — Earth Observation</span>
+                    </div>
+                    <div style="display:flex; gap:1rem;">
+                        <span class="text-muted text-sm" style="min-width:120px;">Pilot Region</span>
+                        <span>Oromia Region, Arsi-Bale Zone — Ethiopia</span>
+                    </div>
                 </div>
+            </div>
+
+            <div class="glass-card p-4 mb-4">
+                <h3 style="margin-bottom:1rem;"><i class="fa-solid fa-flask" style="color:#4f8ef7; margin-right:0.5rem;"></i> Methodology</h3>
+                <p style="line-height:1.7; color:#9ca3af; margin-bottom:0.75rem;">
+                    The system ingests multi-source satellite data from Google Earth Engine (GEE):
+                    Sentinel-2 multispectral imagery for vegetation indices (NDVI, EVI, VCI),
+                    CHIRPS precipitation estimates, and ERA5-Land reanalysis for soil moisture and temperature.
+                </p>
+                <p style="line-height:1.7; color:#9ca3af; margin-bottom:0.75rem;">
+                    Features are engineered with time-lagged sequences, rolling statistics, and drought indices (SPI, PDSI).
+                    Four models are trained and benchmarked: a VCI-based Rule Baseline, Random Forest,
+                    XGBoost with SHAP explainability, and a PyTorch LSTM for sequential patterns.
+                </p>
+                <p style="line-height:1.7; color:#9ca3af;">
+                    Models are evaluated on held-out temporal splits to prevent data leakage, using
+                    Macro-F1, Probability of Detection (POD), and False Alarm Ratio (FAR) metrics.
+                </p>
+            </div>
+
+            <div class="alert-box alert-warning">
+                <strong><i class="fa-solid fa-triangle-exclamation" style="margin-right:0.4rem;"></i> Research Prototype Disclaimer</strong><br>
+                This is an educational research prototype. All data displayed in MVP mode is synthetically generated for demonstration purposes only.
+                Do not use for official agricultural planning or disaster response decisions.
+            </div>
+        </div>
+
+        <!-- Right: Tech stack + data sources -->
+        <div>
+            <div class="glass-card p-4 mb-4">
+                <h4 style="margin-bottom:1rem;"><i class="fa-solid fa-layer-group" style="color:#4f8ef7; margin-right:0.5rem;"></i> Technology Stack</h4>
+                <ul class="tech-list">
+                    <li><i class="fa-brands fa-python"></i> Python 3.11 + NumPy / Pandas</li>
+                    <li><i class="fa-solid fa-leaf"></i> Scikit-Learn (Random Forest)</li>
+                    <li><i class="fa-solid fa-bolt"></i> XGBoost + SHAP</li>
+                    <li><i class="fa-solid fa-fire"></i> PyTorch (LSTM Neural Network)</li>
+                    <li><i class="fa-solid fa-globe"></i> Google Earth Engine API</li>
+                    <li><i class="fa-solid fa-server"></i> Flask + Flask-CORS</li>
+                    <li><i class="fa-solid fa-map"></i> Leaflet.js (Interactive Maps)</li>
+                    <li><i class="fa-solid fa-chart-pie"></i> Plotly.js (Visualization)</li>
+                    <li><i class="fa-brands fa-google"></i> Google Colab (GPU Training)</li>
+                </ul>
+            </div>
+
+            <div class="glass-card p-4">
+                <h4 style="margin-bottom:1rem;"><i class="fa-solid fa-database" style="color:#4f8ef7; margin-right:0.5rem;"></i> Data Sources</h4>
+                <ul class="tech-list">
+                    <li><i class="fa-solid fa-satellite"></i> Sentinel-2 MSI (ESA Copernicus)</li>
+                    <li><i class="fa-solid fa-satellite-dish"></i> Landsat 8/9 OLI-TIRS (USGS/NASA)</li>
+                    <li><i class="fa-solid fa-cloud-rain"></i> CHIRPS Daily Rainfall (UCSB/USGS)</li>
+                    <li><i class="fa-solid fa-wind"></i> ERA5-Land Reanalysis (ECMWF)</li>
+                    <li><i class="fa-solid fa-map-location-dot"></i> MODIS NDVI MOD13Q1 (NASA)</li>
+                </ul>
             </div>
         </div>
     </div>

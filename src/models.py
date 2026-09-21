@@ -87,11 +87,11 @@ class RuleBaseline:
 
     def predict(self, X):
         """
-        Classifies based on VCI thresholds:
-        0: Normal (> 40)
-        1: Watch (35 - 40)
-        2: Warning (20 - 35)
-        3: Severe (<= 20)
+        Classifies based on VCI thresholds (aligned with classify_vci_drought):
+        0: Normal  (> 50)
+        1: Watch   (35 < VCI <= 50)
+        2: Warning (20 < VCI <= 35)
+        3: Severe  (<= 20)
         """
         if isinstance(X, pd.DataFrame) and self.vci_col in X.columns:
             vci = X[self.vci_col].values
@@ -101,7 +101,7 @@ class RuleBaseline:
             raise ValueError(f"X must be a DataFrame containing '{self.vci_col}' or a 2D numpy array.")
             
         preds = np.zeros(len(vci), dtype=int)
-        preds[(vci <= 40) & (vci > 35)] = 1
+        preds[(vci <= 50) & (vci > 35)] = 1
         preds[(vci <= 35) & (vci > 20)] = 2
         preds[vci <= 20] = 3
         return preds

@@ -177,11 +177,11 @@ def generate_pilot_dataset(n_cells=1500, start_year=2018, end_year=2025, seed=42
             # Primary model target: 30-day forecast (lead 3)
             rec["target"] = rec["target_lead_3"]
             
-            # Assign strict temporal split
-            d_val = rec["date"]
-            if d_val <= "2022-01-01":
+            # Assign strict temporal split using proper date comparison
+            d_obj = d  # d is already a datetime object in this loop
+            if d_obj <= datetime(2022, 1, 1):
                 rec["split"] = "Train"
-            elif d_val <= "2023-07-01":
+            elif d_obj <= datetime(2023, 7, 1):
                 rec["split"] = "Val"
             else:
                 rec["split"] = "Test"

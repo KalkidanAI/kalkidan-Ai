@@ -21,11 +21,13 @@ def compute_ndmi(nir: pd.Series, swir: pd.Series) -> pd.Series:
 
 def compute_vci(ndvi: pd.Series, ndvi_min: pd.Series, ndvi_max: pd.Series) -> pd.Series:
     """Vegetation Condition Index."""
-    return 100 * (ndvi - ndvi_min) / (ndvi_max - ndvi_min).replace(0, np.nan)
+    denom = (ndvi_max - ndvi_min).replace(0, np.nan)
+    return 100 * (ndvi - ndvi_min) / denom
 
 def compute_tci(lst: pd.Series, lst_min: pd.Series, lst_max: pd.Series) -> pd.Series:
     """Temperature Condition Index."""
-    return 100 * (lst_max - lst) / (lst_max - lst_min).replace(0, np.nan)
+    denom = (lst_max - lst_min).replace(0, np.nan)
+    return 100 * (lst_max - lst) / denom
 
 def compute_vhi(vci: pd.Series, tci: pd.Series, alpha: float = 0.5) -> pd.Series:
     """Vegetation Health Index."""

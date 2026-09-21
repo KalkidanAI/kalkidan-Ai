@@ -1,0 +1,18 @@
+{
+  "builds": [
+    {
+      "src": "dashboard/app.py",
+      "use": "@vercel/python",
+      "config": {
+        "requirementsFile": "requirements-vercel.txt",
+        "runtime": "python3.11"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "dashboard/app.py"
+    }
+  ]
+}

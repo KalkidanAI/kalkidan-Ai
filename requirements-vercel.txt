@@ -1,0 +1,5 @@
+# Vercel deployment requirements (dashboard only)
+# Heavy ML/GEE packages are excluded - they run in Colab/local environment
+flask>=3.0
+flask-cors>=4.0
+numpy>=1.24

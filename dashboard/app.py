@@ -1,14 +1,21 @@
 import os
 import sys
 
-# Ensure dashboard directory is in sys.path
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+# Ensure the dashboard directory is on sys.path for sibling imports (critical for Vercel)
+_DASHBOARD_DIR = os.path.dirname(os.path.abspath(__file__))
+if _DASHBOARD_DIR not in sys.path:
+    sys.path.insert(0, _DASHBOARD_DIR)
 
 from flask import Flask, render_template, jsonify, request
 from flask_cors import CORS
-from sample_data import generate_spatial_data, generate_timeseries_data, generate_model_results, generate_alerts
+from dashboard.sample_data import generate_spatial_data, generate_timeseries_data, generate_model_results, generate_alerts
 
-app = Flask(__name__)
+# Use absolute paths so Flask finds templates/static regardless of cwd (Vercel serverless)
+app = Flask(
+    __name__,
+    template_folder=os.path.join(_DASHBOARD_DIR, 'templates'),
+    static_folder=os.path.join(_DASHBOARD_DIR, 'static')
+)
 CORS(app)
 
 # Generate sample data on startup
